@@ -12,7 +12,7 @@ class Game;
 // Loading state
 
 class LoadingState : public State {
-   enum class Phase { fading_in, fading_out, waiting };
+   enum class Phase { fading_in, sprites, sounds, fonts, data, fading_out, waiting };
 
    Game& game;
    sf::RectangleShape screen_tint;
@@ -28,9 +28,9 @@ class LoadingState : public State {
    Phase phase = Phase::fading_in;
 
    std::string get_splash() const;
-
 public:
-   LoadingState(sf::RenderWindow& window, Game& game);
+
+   LoadingState(sf::RenderWindow& window, Asset& asset, Audio& audio, Event& event, Game& game);
    ~LoadingState() = default;
 
    // Default functions
@@ -42,6 +42,10 @@ public:
    // Update functions
 
    void update_fading_in();
+   void load_sprites();
+   void load_sounds();
+   void load_fonts();
+   void setup_game_data();
    void update_fading_out();
 };
 

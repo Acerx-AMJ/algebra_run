@@ -9,7 +9,12 @@
 
 class Game {
    sf::RenderWindow* window;
+   Asset* asset;
+   Audio* audio;
+   Event* event;
    States states;
+
+   void init_audio();
 
 public:
    Game();
