@@ -7,6 +7,8 @@
 
 // Error functions
 
+#undef assert
+
 namespace err {
    [[noreturn]] inline void raise(std::string_view msg) {
       std::cerr << "\nAn error occurred:\n";

@@ -4,6 +4,7 @@
 // Includes
 
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include "states.hpp"
 
@@ -18,6 +19,7 @@ class LoadingState : public State {
    sf::RectangleShape screen_tint;
    sf::RectangleShape loading_bar_fg;
    sf::RectangleShape loading_bar_bg;
+   sf::Shader loading_bar_shader;
    sf::Text loading_text;
    sf::Text info_text;
 
@@ -25,6 +27,7 @@ class LoadingState : public State {
    float start_length = 0;
    float done_timer = 0;
    float fade_timer = 0;
+   float progress = 0;
    Phase phase = Phase::fading_in;
 
    std::string get_splash() const;

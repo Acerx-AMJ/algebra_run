@@ -6,8 +6,10 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "game.hpp"
 #include "util/asset.hpp"
+#include "util/error.hpp"
 #include "util/event.hpp"
 #include "util/audio.hpp"
+#include "util/text.hpp"
 #include <fstream>
 #include <thread>
 
@@ -17,7 +19,7 @@ using namespace std::string_view_literals;
 namespace {
    static constexpr float done_length = 1.f;
    static constexpr float fade_length = .3f;
-   static constexpr size_t phase_count = 1;
+   static constexpr size_t phase_count = 4;
    static constexpr float phase_progress = 1.f / phase_count;
 
    static constexpr float start_min = .25f;
@@ -44,17 +46,20 @@ LoadingState::LoadingState(sf::RenderWindow& window, Asset& asset, Audio& audio,
    loading_bar_fg.setTexture(&bar_texture);
    loading_bar_fg.setFillColor(sf::Color(255, 255, 255));
 
-   loading_text.setString("Loading..."s);
+   err::assert(loading_bar_shader.loadFromFile("assets/shaders/clip.frag"s, sf::Shader::Fragment), "Could not load shader 'clip.frag'."s);
+   loading_bar_shader.setUniform("texture"s, sf::Shader::CurrentTexture);
+   loading_bar_shader.setUniform("progress"s, 0);
+
    loading_text.setFont(font);
    loading_text.setCharacterSize(48);
-   loading_text.setOrigin(loading_text.getGlobalBounds().getSize() / 2.f);
    loading_text.setPosition(event.get_center() - sf::Vector2f(0, 75));
+   text::set(loading_text, "Loading..."s);
 
-   info_text.setString(get_splash());
    info_text.setFont(font);
    info_text.setCharacterSize(24);
-   info_text.setOrigin(info_text.getGlobalBounds().getSize() / 2.f);
    info_text.setPosition(event.get_center() + sf::Vector2f(0, 75));
+   text::set(info_text, get_splash());
+   text::wrap(info_text, window.getSize().x - 120.f);
 
    screen_tint.setSize(event.get_size());
    screen_tint.setFillColor(sf::Color(0, 0, 0, 0));
@@ -78,7 +83,7 @@ void LoadingState::update() {
 
 void LoadingState::render() {
    window.draw(loading_bar_bg);
-   window.draw(loading_bar_fg);
+   window.draw(loading_bar_fg, &loading_bar_shader);
    window.draw(loading_text);
    window.draw(info_text);
    window.draw(screen_tint);
@@ -98,41 +103,48 @@ void LoadingState::update_fading_in() {
 }
 
 void LoadingState::load_sprites() {
-   loading_text.setString("Loading Sprites..."s);
+   text::set(loading_text, "Loading Sprites..."s);
    phase = Phase::waiting;
 
    asset.load_sprite_directory([this](){
       phase = Phase::sounds;
+      progress += phase_progress;
+      loading_bar_shader.setUniform("progress"s, progress);
    }, "images/"s);
 }
 
 void LoadingState::load_sounds() {
-   loading_text.setString("Loading Sounds..."s);
+   text::set(loading_text, "Loading Sounds..."s);
    phase = Phase::waiting;
 
    asset.load_sound_directory([this](){
       phase = Phase::fonts;
+      progress += phase_progress;
+      loading_bar_shader.setUniform("progress"s, progress);
    }, "sounds/"s);
 }
 
 void LoadingState::load_fonts() {
-   loading_text.setString("Loading Fonts..."s);
+   text::set(loading_text, "Loading Fonts..."s);
    phase = Phase::waiting;
 
    asset.load_font_directory([this](){
       phase = Phase::data;
+      progress += phase_progress;
+      loading_bar_shader.setUniform("progress"s, progress);
    }, "fonts/"s);
 }
 
 void LoadingState::setup_game_data() {
-   loading_text.setString("Loading Game Data..."s);
+   text::set(loading_text, "Loading Game Data..."s);
    phase = Phase::waiting;
 
    std::thread([this](){
       game.init();
-      loading_text.setString("Loading Done!"s);
+      text::set(loading_text, "Loading Done!"s);
       audio.play("success"s);
       phase = Phase::fading_out;
+      loading_bar_shader.setUniform("progress"s, 1.f);
    }).detach();
 }
 
