@@ -70,4 +70,5 @@ void Game::init() {
 
 void Game::init_audio() {
    audio->save("success"s, "success"s, 255, .75f, 1.25f);
+   audio->save("hit"s, {"hit"s, "hit2"s, "hit3"s}, 255, .75f, 1.25f);
 }

@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "game.hpp"
+#include "states/menu.hpp"
 #include "util/asset.hpp"
 #include "util/error.hpp"
 #include "util/event.hpp"
@@ -62,7 +63,7 @@ LoadingState::LoadingState(sf::RenderWindow& window, Asset& asset, Audio& audio,
    text::wrap(info_text, window.getSize().x - 120.f);
 
    screen_tint.setSize(event.get_size());
-   screen_tint.setFillColor(sf::Color(0, 0, 0, 0));
+   screen_tint.setFillColor(sf::Color(0, 0, 0, 255));
 
    start_length = start_min + rand() / (RAND_MAX / (start_max - start_min));
 }
@@ -90,15 +91,18 @@ void LoadingState::render() {
 }
 
 void LoadingState::change(States& states) {
-   // Push back the main menu state
+   states.push_back(std::make_unique<MainMenuState>(window, asset, audio, event));
 }
 
 // Update functions
 
 void LoadingState::update_fading_in() {
    start_timer += event.get_dt();
+   screen_tint.setFillColor(sf::Color(0, 0, 0, 255 - (start_timer / start_length) * 255));
+
    if (start_timer >= start_length) {
       phase = Phase::sprites;
+      screen_tint.setFillColor(sf::Color(0, 0, 0, 0));
    }
 }
 
