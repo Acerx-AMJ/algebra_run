@@ -18,7 +18,7 @@ Asset::Asset(const std::filesystem::path& root)
 
 // Loading functions
 
-const Asset::Sprite& Asset::load_sprite(const std::filesystem::path& path) {
+Asset::Sprite& Asset::load_sprite(const std::filesystem::path& path) {
    auto full (root / path);
    err::assert(std::filesystem::exists(full), "File '"s + full.string() + "' does not exist."s);
 
@@ -34,7 +34,7 @@ const Asset::Sprite& Asset::load_sprite(const std::filesystem::path& path) {
    return sprites[identifier];
 }
 
-const Asset::Sound& Asset::load_sound(const std::filesystem::path& path) {
+Asset::Sound& Asset::load_sound(const std::filesystem::path& path) {
    auto full (root / path);
    err::assert(std::filesystem::exists(full), "File '"s + full.string() + "' does not exist."s);
 
@@ -50,7 +50,7 @@ const Asset::Sound& Asset::load_sound(const std::filesystem::path& path) {
    return sounds[identifier];
 }
 
-const Asset::Font& Asset::load_font(const std::filesystem::path& path) {
+Asset::Font& Asset::load_font(const std::filesystem::path& path) {
    auto full (root / path);
    err::assert(std::filesystem::exists(full), "File '"s + full.string() + "' does not exist."s);
 
@@ -169,17 +169,17 @@ void Asset::load_font_directory(const Callback& callback, const std::filesystem:
 
 // Get functions
 
-const Asset::Sprite& Asset::get_sprite(const std::string& identifier) {
+Asset::Sprite& Asset::get_sprite(const std::string& identifier) {
    err::assert(sprites.contains(identifier), "Texture '"s + identifier + "' does not exist."s);
    return sprites[identifier];
 }
 
-const Asset::Sound& Asset::get_sound(const std::string& identifier) {
+Asset::Sound& Asset::get_sound(const std::string& identifier) {
    err::assert(sounds.contains(identifier), "Sound '"s + identifier + "' does not exist."s);
    return sounds[identifier];
 }
 
-const Asset::Font& Asset::get_font(const std::string& identifier) {
+Asset::Font& Asset::get_font(const std::string& identifier) {
    err::assert(fonts.contains(identifier), "Font '"s + identifier + "' does not exist."s);
    return fonts[identifier];
 }

@@ -33,9 +33,9 @@ public:
 
    // Loading functions
 
-   const Sprite& load_sprite(const std::filesystem::path& path);
-   const Sound& load_sound(const std::filesystem::path& path);
-   const Font& load_font(const std::filesystem::path& path);
+   Sprite& load_sprite(const std::filesystem::path& path);
+   Sound& load_sound(const std::filesystem::path& path);
+   Font& load_font(const std::filesystem::path& path);
 
    // Directory loading functions
 
@@ -45,9 +45,9 @@ public:
 
    // Get functions
 
-   const Sprite& get_sprite(const std::string& identifier);
-   const Sound& get_sound(const std::string& identifier);
-   const Font& get_font(const std::string& identifier);
+   Sprite& get_sprite(const std::string& identifier);
+   Sound& get_sound(const std::string& identifier);
+   Font& get_font(const std::string& identifier);
 
    // Contains functions
 

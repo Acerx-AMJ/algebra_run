@@ -14,6 +14,9 @@ class MainMenuState : public State {
 
    sf::RectangleShape quit_button;
    sf::Text title_text;
+
+   sf::RectangleShape background;
+   sf::RectangleShape foreground;
    sf::RectangleShape screen_tint;
 
    float fade_in_timer = 0;
