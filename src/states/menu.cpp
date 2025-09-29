@@ -17,17 +17,28 @@ namespace {
 
    static sf::Color colors[] { sf::Color(220, 30, 30), sf::Color(30, 30, 220), sf::Color(30, 220, 30), sf::Color(30, 130, 220), sf::Color(130, 30, 220) };
    static constexpr size_t color_count = 5;
+
+   static constexpr float bg_speed = 300.f;
+   static constexpr float fg_speed = 500.f;
 }
 
 // Constructors
 
 MainMenuState::MainMenuState(sf::RenderWindow& window, Asset& asset, Audio& audio, Event& event)
    : State(window, asset, audio, event) {
-   quit_button.setSize(sf::Vector2f(50.f, 50.f));
-   quit_button.setOrigin(quit_button.getSize() / 2.f);
-   quit_button.setPosition(40.f, 40.f);
-   quit_button.setTexture(&asset.get_sprite("back"s));
-   quit_button.setFillColor(sf::Color(200, 200, 200));
+   auto& quit_texture = asset.get_sprite("quit"s);
+   quit_texture.setSmooth(true);
+
+   quit_button.init(&audio);
+   quit_button.rect.setSize(sf::Vector2f(50.f, 50.f));
+   quit_button.rect.setOrigin(quit_button.rect.getSize() / 2.f);
+   quit_button.rect.setPosition(40.f, 40.f);
+   quit_button.rect.setTexture(&quit_texture);
+
+   play_button.init(&audio);
+   play_button.rect.setSize(sf::Vector2f(100.f, 100.f));
+   play_button.rect.setOrigin(play_button.rect.getSize() / 2.f);
+   play_button.rect.setPosition(event.get_center());
 
    title_text.setFont(asset.get_font("Monoid"s));
    title_text.setCharacterSize(96);
@@ -43,7 +54,7 @@ MainMenuState::MainMenuState(sf::RenderWindow& window, Asset& asset, Audio& audi
    background_texture.setRepeated(true);
    foreground_texture.setRepeated(true);
 
-   background.setSize(sf::Vector2f(event.get_size().x * 2.f, event.get_size().y));
+   background.setSize(sf::Vector2f(event.get_size().x * 2.f, event.get_size().y - 175.f));
    background.setTexture(&background_texture);
    background.setTextureRect(sf::IntRect(0, 0, background_texture.getSize().x * 2.f, background_texture.getSize().y));
    background.setFillColor(color);
@@ -61,6 +72,8 @@ MainMenuState::MainMenuState(sf::RenderWindow& window, Asset& asset, Audio& audi
 // Default functions
 
 void MainMenuState::update() {
+   dt = event.get_dt();
+
    switch (phase) {
    case Phase::idle:       update_idle();       break;
    case Phase::fading_in:  update_fading_in();  break;
@@ -73,7 +86,8 @@ void MainMenuState::render() {
    window.draw(background);
    window.draw(foreground);
 
-   window.draw(quit_button);
+   window.draw(quit_button.rect);
+   window.draw(play_button.rect);
    window.draw(title_text);
    window.draw(screen_tint);
 }
@@ -92,6 +106,7 @@ void MainMenuState::update_fading_in() {
       screen_tint.setFillColor(sf::Color(0, 0, 0, 0));
       phase = Phase::idle;
    }
+   move_background();
 }
 
 void MainMenuState::update_fading_out() {
@@ -107,23 +122,19 @@ void MainMenuState::update_fading_out() {
 
 void MainMenuState::update_idle() {
    auto mouse = event.get_mouse_pos();
-   auto dt = event.get_dt();
 
-   if (quit_button.getGlobalBounds().contains(mouse)) {
-      quit_button.setScale(1.1f, 1.1f);
-      quit_button.setFillColor(sf::Color(255, 255, 255));
-
-      if (event.is_released(sf::Mouse::Button::Left)) {
-         audio.play("hit"s);
-         original = phase;
-         phase = Phase::fading_out;
-      }
-   } else {
-      quit_button.setScale(1.f, 1.f);
-      quit_button.setFillColor(sf::Color(200, 200, 200));
+   quit_button.update(event);
+   if (quit_button.clicked) {
+      original = Phase::quit;
+      phase = Phase::fading_out;
    }
 
+   play_button.update(event);
+   move_background();
+}
+
+void MainMenuState::move_background() {
    auto bg_pos = background.getPosition(), fg_pos = foreground.getPosition();
-   background.setPosition(int((bg_pos.x - 150.f * dt)) % int(event.get_size().x), bg_pos.y);
-   foreground.setPosition(int((fg_pos.x - 200.f * dt)) % int(event.get_size().x), fg_pos.y);
+   background.setPosition(int((bg_pos.x - bg_speed * dt)) % int(event.get_size().x), bg_pos.y);
+   foreground.setPosition(int((fg_pos.x - fg_speed * dt)) % int(event.get_size().x), fg_pos.y);
 }

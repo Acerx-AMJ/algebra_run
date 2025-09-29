@@ -3,16 +3,16 @@
 
 // Includes
 
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include "states.hpp"
+#include "util/button.hpp"
 
 // Main menu state
 
 class MainMenuState : public State {
    enum class Phase { idle, quit, fading_in, fading_out };
 
-   sf::RectangleShape quit_button;
+   Button quit_button;
+   Button play_button;
    sf::Text title_text;
 
    sf::RectangleShape background;
@@ -21,6 +21,7 @@ class MainMenuState : public State {
 
    float fade_in_timer = 0;
    float fade_out_timer = 0;
+   float dt = 0;
    Phase phase = Phase::fading_in, original = phase;
 public:
 
@@ -38,6 +39,7 @@ public:
    void update_fading_in();
    void update_fading_out();
    void update_idle();
+   void move_background();
 };
 
 #endif
